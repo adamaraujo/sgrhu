@@ -21,4 +21,13 @@ public class Refeicao {
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Gera o id automaticamente
     @Column(name = "idrefeicao", nullable = false) // @Column é usado quando o nome da variável é diferente do nome do atributo no BD
 	protected Long idRefeicao;
+	
+	@Column(name = "nomerefeicao", nullable = false) 
+	protected String nomeRefeicao;
+		
+	@Column(name = "valortotal", nullable = false) 
+	protected double valorTotal;
+	
+	@Column(name = "valorparcial", nullable = false) 
+	protected double valorParcial;
 }

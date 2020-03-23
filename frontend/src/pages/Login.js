@@ -1,11 +1,11 @@
 import React, { useState, Component } from 'react';
-import api from '../../services/api';
+//import api from '../../services/api';
 import './Login.css';
 
 import {User, LockAlt} from 'styled-icons/boxicons-solid';
 import {SignInAlt} from 'styled-icons/fa-solid/SignInAlt';
 
-import logo from '../../assets/logo.png';
+import logo from '../assets/logo.png';
 
 export default class Login extends Component {
   state = {

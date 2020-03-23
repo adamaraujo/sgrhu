@@ -2,6 +2,7 @@ package com.backend.backend.models;
 
 import java.sql.Date;
 import java.sql.Time;
+import java.time.LocalDate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -28,15 +29,11 @@ public class Ticket {
 	@Column(name = "cpfcliente", nullable = false) 
 	protected String cpfCliente;
 	
-	protected String primeiro_nome;
-	
-	protected String sobrenome;
-	
 	@Column(name = "dataconsumo", nullable = false) 
-	protected Date dataConsumo; // Tenho que verificar se esse é realmente o tipo adequado, uma vez que não é o usuário que entra com esse parâmetro de requisição
+	protected String dataConsumo; // Tenho que verificar se esse é realmente o tipo adequado, uma vez que não é o usuário que entra com esse parâmetro de requisição
 	
 	@Column(name = "horaconsumo", nullable = false) 
-	protected Time horaConsumo; // Tenho que verificar se esse é realmente o tipo adequado, uma vez que não é o usuário que entra com esse parâmetro de requisição
+	protected String horaConsumo; // Tenho que verificar se esse é realmente o tipo adequado, uma vez que não é o usuário que entra com esse parâmetro de requisição
 	
 	@Column(name = "idrefeicao", nullable = false) 
 	protected Long idRefeicao;
@@ -46,4 +43,7 @@ public class Ticket {
 	
 	@Column(name = "idchefia") 
 	protected Long idChefia;
+	
+	@Column(name = "nomerefeicao") 
+	protected String nomeRefeicao;
 }

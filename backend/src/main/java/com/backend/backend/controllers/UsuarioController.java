@@ -108,7 +108,7 @@ public class UsuarioController {
 	
 	// Busca por usuário específico usando seu id
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public ResponseEntity excluir(@PathVariable Long id){
+	public ResponseEntity buscar(@PathVariable Long id){
 	   return daoUser.findById(id)
 	           .map(record -> ResponseEntity.ok().body(record))
 	           .orElse(ResponseEntity.notFound().build());
