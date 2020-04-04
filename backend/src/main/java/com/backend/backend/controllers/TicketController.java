@@ -14,12 +14,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
+import java.time.chrono.ChronoLocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.sql.ResultSetMetaData;
+import java.util.*;
 
 import org.hibernate.boot.model.source.internal.hbm.ResultSetMappingBinder;
 import org.json.JSONArray;
@@ -176,12 +178,15 @@ public class TicketController {
 			}
 			i = i + 1;
 		}
+		
+		/*
 		Refeicao ref = new Refeicao();
 		ref.setNomeRefeicao(ticket.getNomeRefeicao());
 		ref.setValorParcial(0);
 		ref.setValorTotal(0);
 		Refeicao registrada = daoRefeicao.save(ref);
 		System.out.print(registrada);
+		*/
 		
 		//Long idRef = registrada.getIdRefeicao();
 		//ticket.setIdRefeicao(idRef);
@@ -194,4 +199,120 @@ public class TicketController {
 		
 		//return ResponseEntity.ok().body(registrada);
 	}
+	
+	public String verificaRefeicao (Date data, Time hora) {
+	
+		LocalDate dataPrevista = LocalDate.parse(data.toString());
+		LocalTime horaPrevista = LocalTime.parse(hora.toString());
+		
+		LocalDate dataAgora = LocalDate.now();
+		LocalTime horaAgora = LocalTime.now();
+		
+		LocalTime inicioCafe = LocalTime.parse("06:50:00");
+		LocalTime fimCafe = LocalTime.parse("10:00:00");
+		LocalTime inicioAlmoco = LocalTime.parse("11:30:00");
+		LocalTime fimAlmoco = LocalTime.parse("13:00:00");
+		LocalTime inicioJantar = LocalTime.parse("17:40:00");
+		LocalTime fimJantar = LocalTime.parse("19:00:00");
+		
+		String refeicaoAgora = "";
+		
+		if (dataAgora.isBefore(dataPrevista)) {
+			if (horaAgora.isAfter(inicioCafe) && horaAgora.isBefore(fimCafe)) {
+				refeicaoAgora = "Café da Manhã";
+			}
+			else if (horaAgora.isAfter(inicioAlmoco) && horaAgora.isBefore(fimAlmoco)) {
+				refeicaoAgora = "Almoço";
+			}
+			else if (horaAgora.isAfter(inicioJantar) && horaAgora.isBefore(fimJantar)) {
+				refeicaoAgora = "Jantar";
+			}
+			else {
+				refeicaoAgora = "Nenhuma";
+			}	
+		}
+		else {
+			refeicaoAgora = "Nenhuma";
+		}
+		return refeicaoAgora;
+		
+	}
+	
+	
+	@RequestMapping(value = "/consulta/teste/{cpf}", method = RequestMethod.GET, produces="application/json") 
+	public void teste (@PathVariable String cpf) {
+		String buscaInternado = "SELECT * FROM essgrhu.paciente AS paciente "
+        		+ "NATURAL JOIN essgrhu.internacao AS internacao "
+        		+ "NATURAL JOIN essgrhu.leito  AS leito "
+        		+ "NATURAL JOIN essgrhu.unidadeFuncional AS unidadeF "
+        		+ "WHERE paciente.cpfpaciente = '" + cpf + "';";
+		
+		String buscaExame = "SELECT * FROM essgrhu.paciente AS paciente "
+				+ "NATURAL JOIN essgrhu.exame AS internacao "
+        		+ "WHERE paciente.cpfpaciente = '" + cpf + "';";
+		
+		try {
+			
+			String nome = "";
+			String sobrenome = "";
+			String refeicao = ""; // Qual a refeição que o paciente tem direito
+			String localInternacao = ""; // Saber se o paciente está ou não na UTI
+			boolean temInternacao = true; // Saber se há internação
+			boolean temExame = true; // Saber se há exame
+			boolean direitoLanche = false; // Saber se o paciente com exame tem direito ao Lanche
+					
+			ResultSet ps = retrieveData(buscaInternado); // Busca internação
+			ResultSet rs = retrieveData(buscaExame); // Busca se há exame
+			
+			// Faz varredura no resultado da busca por exames
+			if (rs.next() == false) {
+		        temExame = false;
+		      } else {
+
+		        do {
+		        	nome = rs.getString("primeiro_nome");
+		        	sobrenome = rs.getString("sobrenome");
+		        	direitoLanche = rs.getBoolean("jejum");
+		        } while (rs.next());
+		      }
+			
+			// Faz varredura no resultado da busca por exames
+			if (ps.next() == false) {
+		        temInternacao = false;
+		        if (temExame == true && direitoLanche == true) {
+		        	refeicao = "Lanche";
+		        }
+		        else {
+		        	refeicao = "Nenhuma";
+		        }
+		      } else {
+
+		        do {
+		          localInternacao = ps.getString("tipo");
+		          if (localInternacao.matches("UTI")) {
+		        	  refeicao = "Nenhuma";
+		          }
+		          else {
+		        	  nome = ps.getString("primeiro_nome");
+		        	  sobrenome = ps.getString("sobrenome");
+		        	  Date data = ps.getDate("dataprevisao");
+		        	  Time hora = ps.getTime("horaprevisao");
+		        	  refeicao = verificaRefeicao(data, hora);
+		          }
+		        } while (rs.next());
+		      }
+			System.out.println("Nome: " + nome + " " + sobrenome);
+			System.out.println("Refeição: " + refeicao);
+			System.out.println("Direito ao lanche? " + direitoLanche);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+	
+	
+	
+	
+	
 }
