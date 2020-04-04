@@ -12,5 +12,6 @@ import com.backend.backend.models.Ticket;
 
 @Repository
 public interface DAOTicket extends JpaRepository<Ticket, Long> {
+	List<Ticket> findByCpfClienteAndNomeRefeicaoAndDataConsumo(String cpfCliente, String nomeRefeicao, Date dataConsumo);
 	List<Ticket> findBycpfCliente(String cpfCliente);
 }

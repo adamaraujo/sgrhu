@@ -161,6 +161,7 @@ public class TicketController {
 	// && consumidoHOJE.getNomeRefeicao() == ticket.getNomeRefeicao()
 	
 	// Criando novo ticket
+	/*
 	@RequestMapping(value = "/normal/new", method = RequestMethod.POST)
 	public void criar(@RequestBody Ticket ticket) {
 		List<Ticket> consumidoHOJE = daoTicket.findBycpfCliente(ticket.getCpfCliente());
@@ -179,14 +180,12 @@ public class TicketController {
 			i = i + 1;
 		}
 		
-		/*
 		Refeicao ref = new Refeicao();
 		ref.setNomeRefeicao(ticket.getNomeRefeicao());
 		ref.setValorParcial(0);
 		ref.setValorTotal(0);
 		Refeicao registrada = daoRefeicao.save(ref);
 		System.out.print(registrada);
-		*/
 		
 		//Long idRef = registrada.getIdRefeicao();
 		//ticket.setIdRefeicao(idRef);
@@ -199,6 +198,15 @@ public class TicketController {
 		
 		//return ResponseEntity.ok().body(registrada);
 	}
+	*/
+	
+	// Verifica se um cliente já consumiu uma refeição
+	public Ticket ticketConsumido (String cpf, String refeicao, Date data) {
+		
+		List<Ticket> consumidoHOJE = daoTicket.findByCpfClienteAndNomeRefeicaoAndDataConsumo(cpf, refeicao, data);
+		
+		return consumidoHOJE.get(0);
+	}
 	
 	public String verificaRefeicao (Date data, Time hora) {
 	
@@ -208,6 +216,7 @@ public class TicketController {
 		LocalDate dataAgora = LocalDate.now();
 		LocalTime horaAgora = LocalTime.now();
 		
+		// Horários da refeições conforme Regra de Negócio
 		LocalTime inicioCafe = LocalTime.parse("06:50:00");
 		LocalTime fimCafe = LocalTime.parse("10:00:00");
 		LocalTime inicioAlmoco = LocalTime.parse("11:30:00");
@@ -240,7 +249,7 @@ public class TicketController {
 	
 	
 	@RequestMapping(value = "/consulta/teste/{cpf}", method = RequestMethod.GET, produces="application/json") 
-	public void teste (@PathVariable String cpf) {
+	public ResponseEntity<String> teste (@PathVariable String cpf) {
 		String buscaInternado = "SELECT * FROM essgrhu.paciente AS paciente "
         		+ "NATURAL JOIN essgrhu.internacao AS internacao "
         		+ "NATURAL JOIN essgrhu.leito  AS leito "
@@ -251,15 +260,18 @@ public class TicketController {
 				+ "NATURAL JOIN essgrhu.exame AS internacao "
         		+ "WHERE paciente.cpfpaciente = '" + cpf + "';";
 		
+		String nome = "";
+		String sobrenome = "";
+		String refeicao = ""; // Qual a refeição que o paciente tem direito
+		String localInternacao = ""; // Saber se o paciente está ou não na UTI
+		boolean temInternacao = true; // Saber se há internação
+		boolean temExame = true; // Saber se há exame
+		boolean direitoLanche = false; // Saber se o paciente com exame tem direito ao Lanche
+		
+		JSONArray entities = new JSONArray();
+		JSONObject record = new JSONObject();
+		
 		try {
-			
-			String nome = "";
-			String sobrenome = "";
-			String refeicao = ""; // Qual a refeição que o paciente tem direito
-			String localInternacao = ""; // Saber se o paciente está ou não na UTI
-			boolean temInternacao = true; // Saber se há internação
-			boolean temExame = true; // Saber se há exame
-			boolean direitoLanche = false; // Saber se o paciente com exame tem direito ao Lanche
 					
 			ResultSet ps = retrieveData(buscaInternado); // Busca internação
 			ResultSet rs = retrieveData(buscaExame); // Busca se há exame
@@ -288,27 +300,38 @@ public class TicketController {
 		      } else {
 
 		        do {
-		          localInternacao = ps.getString("tipo");
-		          if (localInternacao.matches("UTI")) {
-		        	  refeicao = "Nenhuma";
-		          }
-		          else {
-		        	  nome = ps.getString("primeiro_nome");
-		        	  sobrenome = ps.getString("sobrenome");
-		        	  Date data = ps.getDate("dataprevisao");
-		        	  Time hora = ps.getTime("horaprevisao");
-		        	  refeicao = verificaRefeicao(data, hora);
-		          }
+		        	nome = ps.getString("primeiro_nome");
+		        	sobrenome = ps.getString("sobrenome");
+		        	Date data = ps.getDate("dataprevisao");
+		        	Time hora = ps.getTime("horaprevisao");
+		        	localInternacao = ps.getString("tipo");
+		        	
+		        	if (localInternacao.matches("UTI")) {
+		        		refeicao = "Nenhuma";
+		        	}
+		        	else {
+		        		refeicao = verificaRefeicao(data, hora);
+		        	}
 		        } while (rs.next());
 		      }
-			System.out.println("Nome: " + nome + " " + sobrenome);
-			System.out.println("Refeição: " + refeicao);
-			System.out.println("Direito ao lanche? " + direitoLanche);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+		
+		// Não encontrou o paciente com o cpf fornecido
+		if (temExame == false && temInternacao == false) {
+			return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+		}
+		else {
+			// Cria o objeto JSON 
+			record.put("Nome", nome);
+			record.put("Sobrenome", sobrenome);
+			record.put("Refeição", refeicao);
+			record.put("Lanche", direitoLanche);
+			String result = record.toString();
+		    return new ResponseEntity<String>(result, HttpStatus.OK);
+		}
 	}
 	
 	

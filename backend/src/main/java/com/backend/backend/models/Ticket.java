@@ -30,10 +30,10 @@ public class Ticket {
 	protected String cpfCliente;
 	
 	@Column(name = "dataconsumo", nullable = false) 
-	protected String dataConsumo; // Tenho que verificar se esse é realmente o tipo adequado, uma vez que não é o usuário que entra com esse parâmetro de requisição
+	protected Date dataConsumo; // Tenho que verificar se esse é realmente o tipo adequado, uma vez que não é o usuário que entra com esse parâmetro de requisição
 	
 	@Column(name = "horaconsumo", nullable = false) 
-	protected String horaConsumo; // Tenho que verificar se esse é realmente o tipo adequado, uma vez que não é o usuário que entra com esse parâmetro de requisição
+	protected Time horaConsumo; // Tenho que verificar se esse é realmente o tipo adequado, uma vez que não é o usuário que entra com esse parâmetro de requisição
 	
 	@Column(name = "idrefeicao", nullable = false) 
 	protected Long idRefeicao;
