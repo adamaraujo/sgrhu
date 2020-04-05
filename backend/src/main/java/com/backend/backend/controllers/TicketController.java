@@ -16,6 +16,7 @@ import java.time.LocalTime;
 import java.time.Month;
 import java.time.chrono.ChronoLocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -154,7 +155,7 @@ public class TicketController {
 		
 		String refeicaoAgora = "";
 		
-		if (dataAgora.isBefore(dataPrevista)) {
+		if (dataAgora.isBefore(dataPrevista) || dataAgora.isEqual(dataPrevista)) {
 			if (horaAgora.isAfter(inicioCafe) && horaAgora.isBefore(fimCafe)) {
 				refeicaoAgora = "Café da Manhã";
 			}
@@ -181,6 +182,60 @@ public class TicketController {
 				+ "JOIN essgrhu.turno turno USING (idturno) "
 				+ "JOIN essgrhu.plantao plantao USING (idplantao) "
 				+ "WHERE servidor.cpfservidor = '" + cpf + "';";
+		
+		boolean existeColaborador = true;
+		LocalDate dataAgora = LocalDate.now();
+		java.sql.Date sqlDate = java.sql.Date.valueOf( dataAgora );
+		String diaSemana = dataAgora.getDayOfWeek().getDisplayName(TextStyle.FULL, new Locale("pt"));
+		LocalTime horaAgora = LocalTime.now();
+		String refeicao = "";
+		boolean ticketConsumido = false;
+		
+		try {
+			
+			ResultSet ps = retrieveData(buscaColaborador);
+			
+			if (ps.next() == false) {
+				existeColaborador = false;
+		      } else {
+
+		        do {
+		        	
+		    		LocalTime inicioTurno = LocalTime.parse(ps.getTime("inicioturno").toString());
+		    		LocalTime fimTurno = LocalTime.parse(ps.getTime("fimturno").toString());
+		    		LocalDate dataPlantao = LocalDate.parse(ps.getDate("dataplantao").toString());
+		    		LocalTime inicioPlantao = LocalTime.parse(ps.getTime("horainicio").toString());
+		    		LocalTime fimPlantao = LocalTime.parse(ps.getTime("horafinal").toString());
+		    		String semana = ps.getString("dia");
+		        	
+		        	if (horaAgora.isAfter(inicioTurno) && horaAgora.isBefore(fimTurno)) {
+		        		refeicao = verificaRefeicao (sqlDate, ps.getTime("fimturno"));
+		        	}
+		        	else if ( ( dataAgora.isAfter(dataPlantao) || dataAgora.isEqual(dataPlantao) ) && diaSemana.matches(semana) ) {
+		        		if (horaAgora.isAfter(inicioPlantao) && horaAgora.isBefore(fimPlantao)) {
+		        			refeicao = verificaRefeicao (sqlDate, ps.getTime("horafinal"));
+		        		}
+		        		else {
+		        			refeicao = "Nenhuma";
+		        		}
+		        	}
+		        	else {
+		        		refeicao = "Nenhuma";
+		        	}
+		        	
+		        	String cpfServidor = ps.getString("cpfservidor");
+	        		Ticket consumido = ticketConsumido(cpfServidor, refeicao);
+	        		if (consumido != null) {
+	        			ticketConsumido = true;
+	        		}
+	        		
+		        } while (ps.next());
+		      }
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 	}
 	
 	@RequestMapping(value = "/consulta/acompanhante/{cpf}", method = RequestMethod.GET, produces="application/json") 
