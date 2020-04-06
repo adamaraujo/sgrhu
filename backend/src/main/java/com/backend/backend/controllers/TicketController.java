@@ -46,6 +46,7 @@ import com.backend.backend.repository.DAOTicketAvulso;
 import com.backend.backend.repository.DAOTicketNormal;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.backend.backend.consulta.consultaHospital;
+import com.backend.backend.models.Autorizacao;
 import com.backend.backend.models.Refeicao;
 import com.backend.backend.models.Ticket;
 import com.backend.backend.models.TicketNormal;
@@ -70,6 +71,7 @@ public class TicketController {
 		this.daoChefia = chefiaRepository;
 		this.daoAtendente = atendenteRepository;
 		this.daoAutorizacao = autorizacaoRepository;
+		this.daoRefeicao = refeicaoRepository;
 	}
 	
 	public Connection connect() throws SQLException {
@@ -82,47 +84,6 @@ public class TicketController {
 	      ResultSet rs = stmt.executeQuery(buscaDado);
 	      return rs;
 	}
-	
-	/*
-	
-	@RequestMapping(value = "/consulta/colaborador/{cpf}", method = RequestMethod.GET, produces="application/json") 
-	public ResponseEntity<String> consultaColaborador(@PathVariable String cpf) {
-		JSONArray entities = new JSONArray();	
-		String buscaColaborador = "SELECT * FROM essgrhu.servidor as y\r\n" + 
-				"inner join essgrhu.plantao as r \r\n" + 
-				"on y.idplantao = r.idplantao\r\n" + 
-				"inner join essgrhu.turno as b\r\n" + 
-				"on y.idturno = b.idturno WHERE y.cpfservidor = '"+ cpf + "';";
-		
-		try {
-			ResultSet ps = retrieveData(buscaColaborador);
-				while(ps.next()) {
-					JSONObject record = new JSONObject();
-				    record.put("matriculasiape", ps.getString("matriculasiape"));
-				    record.put("primeiro_nome", ps.getString("primeiro_nome"));
-				    record.put("sobrenome", ps.getString("sobrenome"));
-				    record.put("cargo", ps.getString("cargo"));
-				    record.put("diaPlantao", ps.getString("dia"));
-				    record.put("horaInicioPlantao:", ps.getTime("horainiciop"));
-				    record.put("horaFinalPlantao:", ps.getTime("horafinalp"));
-				    record.put("dataPlantao", ps.getDate("dataplantao"));				    
-				    record.put("horaInicioTurno", ps.getTime("horainicio"));
-				    record.put("horaFinalTurno", ps.getTime("horafinal"));
-				    entities.put(record);
-				}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-			String result = entities.toString();
-			if (result.length() != 2) {
-				return new ResponseEntity<String>(result, HttpStatus.OK);
-			}
-			else {
-				return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
-			}
-	}
-	
-	*/
 	
 	@GetMapping // Não precisa indicar o caminho, pois para este caso, será sempre /tickets
 	public List listar(){
@@ -150,7 +111,8 @@ public class TicketController {
 		LocalTime fimCafe = LocalTime.parse("10:00:00");
 		LocalTime inicioAlmoco = LocalTime.parse("11:30:00");
 		LocalTime fimAlmoco = LocalTime.parse("13:00:00");
-		LocalTime inicioJantar = LocalTime.parse("17:40:00");
+		//LocalTime inicioJantar = LocalTime.parse("17:40:00");
+		LocalTime inicioJantar = LocalTime.parse("16:40:00");
 		LocalTime fimJantar = LocalTime.parse("19:00:00");
 		
 		String refeicaoAgora = "";
@@ -176,8 +138,64 @@ public class TicketController {
 		
 	}
 	
+	public LocalDate arrumaData (java.util.Date data) {
+		String primeiro = data.toString();
+		String separado[] = primeiro.split(" ");
+		LocalDate dataCerta = LocalDate.parse(separado[0]);
+		return dataCerta;
+	}
+	
+	@RequestMapping(value = "/consulta/autorizacao/{cpf}", method = RequestMethod.GET, produces="application/json")
+	public ResponseEntity<String> consultaAutorizacao (@PathVariable String cpf) {
+		Autorizacao autorizacaoExiste = daoAutorizacao.findBycpfAutorizado(cpf); 
+		
+		String refeicao = "";
+		boolean ticketConsumido = false;
+		JSONObject record = new JSONObject();
+		
+		if (autorizacaoExiste != null) {
+			
+			LocalDate dataInicio = arrumaData(autorizacaoExiste.getDataInicio());
+			LocalDate dataFim = arrumaData(autorizacaoExiste.getDataFim());
+			java.sql.Date dataFimsql = java.sql.Date.valueOf( dataFim );
+			LocalDate dataAgora = LocalDate.now();
+			Time horaFim = autorizacaoExiste.getHoraFim();
+			
+			
+			boolean isAfter = dataAgora.isAfter(dataInicio);
+			boolean isBefore = dataAgora.isBefore(dataFim);
+			boolean isEqualStart = dataAgora.isEqual(dataInicio);
+			boolean isEqualEnd = dataAgora.isEqual(dataFim);
+			
+			if ((isAfter || isEqualStart) && (isBefore || isEqualEnd)) {
+				refeicao = verificaRefeicao (dataFimsql, horaFim);
+			}
+			else {
+				refeicao = "Nenhuma";
+			}
+
+			String cpfAutorizado = autorizacaoExiste.getCpfAutorizado();
+    		Ticket consumido = ticketConsumido(cpfAutorizado, refeicao);
+    		if (consumido != null) {
+    			ticketConsumido = true;
+    		}
+    		   		
+    		record.put("Nome", autorizacaoExiste.getPrimeiro_nome());
+			record.put("Sobrenome", autorizacaoExiste.getSobrenome());
+			record.put("Refeição", refeicao);
+			record.put("Refeição Consumida", ticketConsumido);
+			String result = record.toString();
+		    return new ResponseEntity<String>(result, HttpStatus.OK);
+			
+		}
+		else {
+			return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+		}
+		
+	}
+	
 	@RequestMapping(value = "/consulta/colaborador/{cpf}", method = RequestMethod.GET, produces="application/json") 
-	public void consultaColaborador (@PathVariable String cpf) {	
+	public ResponseEntity<String> consultaColaborador (@PathVariable String cpf) {	
 		String buscaColaborador = "SELECT * FROM essgrhu.servidor servidor "
 				+ "JOIN essgrhu.turno turno USING (idturno) "
 				+ "JOIN essgrhu.plantao plantao USING (idplantao) "
@@ -189,7 +207,10 @@ public class TicketController {
 		String diaSemana = dataAgora.getDayOfWeek().getDisplayName(TextStyle.FULL, new Locale("pt"));
 		LocalTime horaAgora = LocalTime.now();
 		String refeicao = "";
+		String nome = "";
+		String sobrenome = "";
 		boolean ticketConsumido = false;
+		JSONObject record = new JSONObject();
 		
 		try {
 			
@@ -207,6 +228,8 @@ public class TicketController {
 		    		LocalTime inicioPlantao = LocalTime.parse(ps.getTime("horainicio").toString());
 		    		LocalTime fimPlantao = LocalTime.parse(ps.getTime("horafinal").toString());
 		    		String semana = ps.getString("dia");
+		    		nome = ps.getString("primeiro_nome");
+		        	sobrenome = ps.getString("sobrenome");
 		        	
 		        	if (horaAgora.isAfter(inicioTurno) && horaAgora.isBefore(fimTurno)) {
 		        		refeicao = verificaRefeicao (sqlDate, ps.getTime("fimturno"));
@@ -236,6 +259,16 @@ public class TicketController {
 			e.printStackTrace();
 		}
 		
+		if (!existeColaborador) {
+			return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+		} else {
+			record.put("Nome", nome);
+			record.put("Sobrenome", sobrenome);
+			record.put("Refeição", refeicao);
+			record.put("Refeição Consumida", ticketConsumido);
+			String result = record.toString();
+		    return new ResponseEntity<String>(result, HttpStatus.OK);
+		}
 	}
 	
 	@RequestMapping(value = "/consulta/acompanhante/{cpf}", method = RequestMethod.GET, produces="application/json") 
@@ -292,14 +325,9 @@ public class TicketController {
 		}
 		
 		if (!existeAcompanhante) {
-			//System.out.println("Não existe");
 			return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
 		} else {
-			//System.out.println(nome);
-			//System.out.println(sobrenome);
-			//System.out.println(refeicao);
-			//System.out.println(ticketConsumido);
-			
+		
 			record.put("Nome", nome);
 			record.put("Sobrenome", sobrenome);
 			record.put("Refeição", refeicao);
@@ -382,10 +410,6 @@ public class TicketController {
 			e.printStackTrace();
 		}
 		
-		//LocalDate datinha = LocalDate.of(2020,3,20);
-		//java.sql.Date sqlDate = java.sql.Date.valueOf( datinha );
-		
-		//Ticket consumido = ticketConsumido("09834523476", "Almoço", sqlDate);
 		Ticket consumido = ticketConsumido(cpf, refeicao);
 		
 		if (consumido != null) {
@@ -408,8 +432,12 @@ public class TicketController {
 		}
 	}
 	
-	
-	
+	/*
+	@RequestMapping(value = "/new", method = RequestMethod.POST)
+	public void criaTicketNormal (@RequestBody Map<String, String> jsonRequest) {	
+		
+	}
+	*/
 	
 	
 }
