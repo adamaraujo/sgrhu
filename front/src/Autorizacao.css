@@ -1,0 +1,97 @@
+#Autorizacao{
+    position: absolute;
+    width: 100%;
+    height: 1000px;
+    top: 0%;
+    background: rgb(255, 255, 255);
+    border-radius: 0px 0px 0px 0px;
+}
+#divEnviar{
+    top: 0%;
+    margin: 100px 350px;
+    right: 1000px;
+    left: 400px;
+    width: 1000px;
+    height: 400px;
+    background: #FFF;
+    border-radius: 50px 50px 50px 50px;
+}
+#nome{
+    top: 0%;
+    margin: 50px 50px;
+    right: 100px;
+    left: 200px;
+    width: 300px;
+    height: 40px;
+    background: #FFF;
+    border-radius: 10px 10px 10px 10px;
+}
+#cpf{
+    top: 0%;
+    margin: 50px -40px;
+    right: 100px;
+    left: 200px;
+    width: 300px;
+    height: 40px;
+    background: #FFF;
+    border-radius: 10px 10px 10px 10px;
+}
+#perfil{
+    top: 0%;
+    margin: 50px 55px;
+    right: 100px;
+    left: 200px;
+    width: 200px;
+    height: 40px;
+    background: #FFF;
+    border-radius: 10px 10px 10px 10px;
+}
+#dinicio{
+    top: 0%;
+    margin: -50px 50px;
+    width: 145px;
+    height: 40px;
+    background: #FFF;
+    border-radius: 10px 10px 10px 10px;
+}
+#dfim{
+    top: 0%;
+    margin: -50px -45px;
+    width: 145px;
+    height: 40px;
+    background: #FFF;
+    border-radius: 10px 10px 10px 10px;
+}
+#hinicio{
+    top: 0%;
+    margin: -50px 55px;
+    width: 150px;
+    height: 40px;
+    background: #FFF;
+    border-radius: 10px 10px 10px 10px;
+}
+#hfim{
+    top: 0%;
+    margin: -50px -50px;
+    width: 150px;
+    height: 40px;
+    background: #FFF;
+    border-radius: 10px 10px 10px 10px;
+}
+#btnEnviar{
+    top: 0%;
+    margin: -50px 65px;
+    border:none;
+    height:40px;
+    border-radius: 10px 10px 10px 10px;
+    width: 200px;
+    font-weight:lighter;
+    background: #00935D;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.5;
+}
+#btnEnviar:hover{
+    background: #FFF;
+    color: #00935D;
+}

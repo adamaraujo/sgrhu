@@ -1,0 +1,140 @@
+#periodo{
+    margin: 100px 300px;
+    width: 170px;
+    border: 0;
+    background: #00935D;
+    padding: 15px 15px;
+    font-size: 16px;
+    font-weight: lighter;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.5;
+    border-radius: 5px 5px 5px 5px;
+}
+#periodo:hover{
+    background: #fff;
+    color: #00935D;   
+}
+#consumidor{
+    width: 170px;
+    margin: 100px -290px;
+    border: 0;
+    background: #00935D;
+    padding: 16px 16px;
+    font-size: 15px;
+    font-weight: lighter;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.5;
+    border-radius: 5px 5px 5px 5px;
+}
+#consumidor:hover{
+    background: #fff;
+    color: #00935D;   
+}
+#refeicao{
+    width: 170px;
+    margin: 100px 300px;
+    border: 0;
+    background: #00935D;
+    padding: 15px 15px;
+    font-size: 16px;
+    font-weight: lighter;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.5;
+    border-radius: 5px 5px 5px 5px;
+}
+#refeicao:hover{
+    background: #fff;
+    color: #00935D;   
+}
+#ticketss{
+    width: 170px;
+    margin: 100px -290px;
+    border: 0;
+    background: #00935D;
+    padding: 15px 15px;
+    font-size: 16px;
+    font-weight: lighter;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.5;
+    border-radius: 5px 5px 5px 5px;
+}
+#ticketss:hover{
+    background: #fff;
+    color: #00935D;   
+}
+#pdf{
+    width: 170px;
+    margin: 100px 300px;
+    border: 0;
+    background: #00935D;
+    padding: 15px 15px;
+    font-size: 16px;
+    font-weight: lighter;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.5;
+    border-radius: 5px 5px 5px 5px;
+}
+#pdf:hover{
+    background: #fff;
+    color: #00935D;   
+}
+#refe{
+    width: 250px;
+    margin: 0px 300px;
+    border: 0;
+    background: #fff;
+    padding: 150px 30px;
+    font-size: 16px;
+    font-weight: lighter;
+    text-align: left;
+    border-radius: 8px 8px 8px 8px;
+}
+#avulsa{
+    width: 180px;
+    margin: -340px 600px;
+    border: 0;
+    background: #fff;
+    padding: 25px 120px;
+    font-size: 16px;
+    font-weight: lighter;
+    text-align: left;
+    border-radius: 8px 8px 8px 8px;
+}
+#cafe{
+    width: 180px;
+    margin: 350px 600px;
+    border: 0;
+    background: #fff;
+    padding: 25px 120px;
+    font-size: 16px;
+    font-weight: lighter;
+    text-align: left;
+    border-radius: 8px 8px 8px 8px;
+}
+#almoco{
+    width: 180px;
+    margin: -680px 900px;
+    border: 0;
+    background: #fff;
+    padding: 30px 120px;
+    font-size: 16px;
+    font-weight: lighter;
+    text-align: left;
+    border-radius: 8px 8px 8px 8px;
+}
+#jantar{
+    width: 180px;
+    margin: 700px 900px;
+    border: 0;
+    background: #fff;
+    padding: 40px 120px;
+    font-size: 16px;
+    font-weight: lighter;
+    text-align: left;
+    border-radius: 8px 8px 8px 8px;
+}

@@ -1,0 +1,4 @@
+[0404/222109.563:ERROR:scoped_process_suspend.cc(40)] NtResumeProcess: Tentou-se acessar um processo de saída. (0xc000010a)
+[0404/222111.440:WARNING:minidump_to_upload_parameters.cc(36)] duplicate key guid, discarding value 34d63b02-1243-440d-9b2c-1e1dbb6bfc25
+[0405/204221.294:WARNING:minidump_to_upload_parameters.cc(36)] duplicate key guid, discarding value 34d63b02-1243-440d-9b2c-1e1dbb6bfc25
+[0406/032800.653:WARNING:minidump_to_upload_parameters.cc(36)] duplicate key guid, discarding value 34d63b02-1243-440d-9b2c-1e1dbb6bfc25
